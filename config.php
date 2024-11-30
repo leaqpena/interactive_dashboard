@@ -1,16 +1,15 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "interactive_dashboard";
+// Database configuration
+$host = 'localhost';
+$dbname = 'interactive_dashboard';
+$username = 'root'; // Your MySQL username
+$password = ''; // Your MySQL password
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error . " (" . $conn->connect_errno . ")");
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
+    // Set PDO error mode to exception
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
 }
-
-echo "Connected successfully";
 ?>

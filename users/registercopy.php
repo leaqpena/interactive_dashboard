@@ -1,41 +1,59 @@
 <?php
 // Include the database connection
-include ('../config.php'); // Ensure the path to config.php is correct
+include ('../config.php');
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (!$mysqli) {
+        die("Database connection failed.");
+    }
+
     // Get form data
+    $name = $_POST['name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
 
-    try {
-        // Query the database for the user
-        $stmt = $pdo->prepare("SELECT id, password FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password'])) {
-            session_start();
-            $_SESSION['user_id'] = $user['id'];
-            echo "Redirecting to ../index1.php"; // Debug message
-            header("Location: ../index1.php");
-            exit;
-        } else {
-            // Invalid login credentials
-            echo "Invalid email or password.";
-        }
-    } catch (PDOException $e) {
-        die("Error: " . $e->getMessage());
+    // Validate the inputs
+    if ($password !== $confirm_password) {
+        die("Passwords do not match.");
     }
+
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+    // Check if email already exists
+    $stmt = $mysqli->prepare("SELECT id FROM users WHERE email = ?");
+    if (!$stmt) {
+        die("Error preparing query: " . $mysqli->error);
+    }
+
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        die("Email already taken.");
+    }
+
+    // Insert new user into the database
+    $stmt = $mysqli->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
+    if (!$stmt) {
+        die("Error preparing query: " . $mysqli->error);
+    }
+
+    $stmt->bind_param("sss", $name, $email, $hashed_password);
+    $stmt->execute();
+
+    echo "Registration successful!";
 }
-?>
-<!-- meta tags and other links -->
+?><!-- meta tags and other links -->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Dashboard</title>
+    <title>Wowdash - Bootstrap 5 Admin Dashboard HTML Template</title>
     <link rel="icon" type="image/png" href="assets/images/favicon.png" sizes="16x16">
     <!-- remix icon font css  -->
     <link rel="stylesheet" href="../assets/css/remixicon.css">
@@ -83,44 +101,63 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a href="index1.php" class="mb-40 max-w-290-px">
                         <img src="assets/images/logo.png" alt="">
                     </a>
-                    <h4 class="mb-12">Sign In to your Account</h4>
+                    <h4 class="mb-12">Sign Up to your Account</h4>
                     <p class="mb-32 text-secondary-light text-lg">Welcome back! please enter your detail</p>
                 </div>
-                <form  action="login.php" method="POST">
+                <form action="register.php" method="POST">
+                    <div class="icon-field mb-16">
+                        <span class="icon top-50 translate-middle-y">
+                            <iconify-icon icon="f7:person"></iconify-icon>
+                        </span>
+                        <input type="text" class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Username">
+                    </div>
+                    <div class="icon-field mb-16">
+                        <span class="icon top-50 translate-middle-y">
+                            <iconify-icon icon="mage:email"></iconify-icon>
+                        </span>
+                        <input type="text" id="name" name="name" required class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Email">
+                    </div>
                     <div class="icon-field mb-16">
                         <span class="icon top-50 translate-middle-y">
                             <iconify-icon icon="mage:email"></iconify-icon>
                         </span>
                         <input type="email" id="email" name="email" required class="form-control h-56-px bg-neutral-50 radius-12" placeholder="Email">
                     </div>
-                    <div class="position-relative mb-20">
-                        <div class="icon-field">
-                            <span class="icon top-50 translate-middle-y">
-                                <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
-                            </span>
-                            <input type="password" id="password" name="password" required class="form-control h-56-px bg-neutral-50 radius-12" id="your-password" placeholder="Password">
+                    <div class="mb-20">
+                        <div class="position-relative ">
+                            <div class="icon-field">
+                                <span class="icon top-50 translate-middle-y">
+                                    <iconify-icon icon="solar:lock-password-outline"></iconify-icon>
+                                </span>
+                                <input type="password" id="password" name="password" required class="form-control h-56-px bg-neutral-50 radius-12" id="your-password" placeholder="Password">
+                            </div>
+                            <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
                         </div>
-                        <span class="toggle-password ri-eye-line cursor-pointer position-absolute end-0 top-50 translate-middle-y me-16 text-secondary-light" data-toggle="#your-password"></span>
+                        <span class="mt-12 text-sm text-secondary-light">Your password must have at least 8 characters</span>
                     </div>
                     <div class="">
                         <div class="d-flex justify-content-between gap-2">
-                            <div class="form-check style-check d-flex align-items-center">
-                                <input class="form-check-input border border-neutral-300" type="checkbox" value="" id="remeber">
-                                <label class="form-check-label" for="remeber">Remember me </label>
+                            <div class="form-check style-check d-flex align-items-start">
+                                <input class="form-check-input border border-neutral-300 mt-4" type="checkbox" value="" id="condition">
+                                <label class="form-check-label text-sm" for="condition">
+                                    By creating an account means you agree to the
+                                    <a href="javascript:void(0)" class="text-primary-600 fw-semibold">Terms & Conditions</a> and our
+                                    <a href="javascript:void(0)" class="text-primary-600 fw-semibold">Privacy Policy</a>
+                                </label>
                             </div>
-                            <a href="javascript:void(0)" class="text-primary-600 fw-medium">Forgot Password?</a>
+
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"> Sign In</button>
+                    <button type="submit" class="btn btn-primary text-sm btn-sm px-12 py-16 w-100 radius-12 mt-32"> Sign Up</button>
 
                     <div class="mt-32 center-border-horizontal text-center">
-                        <span class="bg-base z-1 px-4">Or sign in with</span>
+                        <span class="bg-base z-1 px-4">Or sign up with</span>
                     </div>
                     <div class="mt-32 d-flex align-items-center gap-3">
                         <button type="button" class="fw-semibold text-primary-light py-16 px-24 w-50 border radius-12 text-md d-flex align-items-center justify-content-center gap-12 line-height-1 bg-hover-primary-50">
                             <iconify-icon icon="ic:baseline-facebook" class="text-primary-600 text-xl line-height-1"></iconify-icon>
-                            Facebook
+                            Google
                         </button>
                         <button type="button" class="fw-semibold text-primary-light py-16 px-24 w-50 border radius-12 text-md d-flex align-items-center justify-content-center gap-12 line-height-1 bg-hover-primary-50">
                             <iconify-icon icon="logos:google-icon" class="text-primary-600 text-xl line-height-1"></iconify-icon>
@@ -128,7 +165,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </button>
                     </div>
                     <div class="mt-32 text-center text-sm">
-                        <p class="mb-0">Don’t have an account? <a href="register.php" class="text-primary-600 fw-semibold">Sign Up</a></p>
+                        <p class="mb-0">Already have an account? <a href="login.php" class="text-primary-600 fw-semibold">Login</a></p>
                     </div>
 
                 </form>
@@ -137,33 +174,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </section>
 
     <!-- jQuery library js -->
-    <script src="../assets/js/lib/jquery-3.7.1.min.js"></script>
+    <script src="assets/js/lib/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap js -->
-    <script src="../assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
     <!-- Apex Chart js -->
-    <script src="../assets/js/lib/apexcharts.min.js"></script>
+    <script src="assets/js/lib/apexcharts.min.js"></script>
     <!-- Data Table js -->
-    <script src="../assets/js/lib/dataTables.min.js"></script>
+    <script src="assets/js/lib/dataTables.min.js"></script>
     <!-- Iconify Font js -->
-    <script src="../assets/js/lib/iconify-icon.min.js"></script>
+    <script src="assets/js/lib/iconify-icon.min.js"></script>
     <!-- jQuery UI js -->
-    <script src="../assets/js/lib/jquery-ui.min.js"></script>
+    <script src="assets/js/lib/jquery-ui.min.js"></script>
     <!-- Vector Map js -->
-    <script src="../assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
-    <script src="../assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
+    <script src="assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
     <!-- Popup js -->
-    <script src="../assets/js/lib/magnifc-popup.min.js"></script>
+    <script src="assets/js/lib/magnifc-popup.min.js"></script>
     <!-- Slick Slider js -->
-    <script src="../assets/js/lib/slick.min.js"></script>
+    <script src="assets/js/lib/slick.min.js"></script>
     <!-- prism js -->
-    <script src="../assets/js/lib/prism.js"></script>
+    <script src="assets/js/lib/prism.js"></script>
     <!-- file upload js -->
-    <script src="../assets/js/lib/file-upload.js"></script>
+    <script src="assets/js/lib/file-upload.js"></script>
     <!-- audioplayer -->
-    <script src="../assets/js/lib/audioplayer.js"></script>
+    <script src="assets/js/lib/audioplayer.js"></script>
 
     <!-- main js -->
-    <script src="../assets/js/app.js"></script>
+    <script src="assets/js/app.js"></script>
 
     <script>
     // ================== Password Show Hide Js Start ==========

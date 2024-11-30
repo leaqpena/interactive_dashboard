@@ -14,11 +14,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
-            session_start();
-            $_SESSION['user_id'] = $user['id'];
-            echo "Redirecting to ../index1.php"; // Debug message
+            // Login successful
+            session_start(); // Start the session
+            $_SESSION['user_id'] = $user['id']; // Store user ID in session
+            
+            // Redirect to index.php
             header("Location: ../index1.php");
-            exit;
+            exit; // Ensure no further code is executed
         } else {
             // Invalid login credentials
             echo "Invalid email or password.";
@@ -27,8 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Error: " . $e->getMessage());
     }
 }
-?>
-<!-- meta tags and other links -->
+?><!-- meta tags and other links -->
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 
@@ -80,7 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="auth-right py-32 px-24 d-flex flex-column justify-content-center">
             <div class="max-w-464-px mx-auto w-100">
                 <div>
-                    <a href="index1.php" class="mb-40 max-w-290-px">
+                    <a href="index.php" class="mb-40 max-w-290-px">
                         <img src="assets/images/logo.png" alt="">
                     </a>
                     <h4 class="mb-12">Sign In to your Account</h4>
@@ -120,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="mt-32 d-flex align-items-center gap-3">
                         <button type="button" class="fw-semibold text-primary-light py-16 px-24 w-50 border radius-12 text-md d-flex align-items-center justify-content-center gap-12 line-height-1 bg-hover-primary-50">
                             <iconify-icon icon="ic:baseline-facebook" class="text-primary-600 text-xl line-height-1"></iconify-icon>
-                            Facebook
+                            Google
                         </button>
                         <button type="button" class="fw-semibold text-primary-light py-16 px-24 w-50 border radius-12 text-md d-flex align-items-center justify-content-center gap-12 line-height-1 bg-hover-primary-50">
                             <iconify-icon icon="logos:google-icon" class="text-primary-600 text-xl line-height-1"></iconify-icon>
@@ -137,33 +138,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </section>
 
     <!-- jQuery library js -->
-    <script src="../assets/js/lib/jquery-3.7.1.min.js"></script>
+    <script src="assets/js/lib/jquery-3.7.1.min.js"></script>
     <!-- Bootstrap js -->
-    <script src="../assets/js/lib/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/lib/bootstrap.bundle.min.js"></script>
     <!-- Apex Chart js -->
-    <script src="../assets/js/lib/apexcharts.min.js"></script>
+    <script src="assets/js/lib/apexcharts.min.js"></script>
     <!-- Data Table js -->
-    <script src="../assets/js/lib/dataTables.min.js"></script>
+    <script src="assets/js/lib/dataTables.min.js"></script>
     <!-- Iconify Font js -->
-    <script src="../assets/js/lib/iconify-icon.min.js"></script>
+    <script src="assets/js/lib/iconify-icon.min.js"></script>
     <!-- jQuery UI js -->
-    <script src="../assets/js/lib/jquery-ui.min.js"></script>
+    <script src="assets/js/lib/jquery-ui.min.js"></script>
     <!-- Vector Map js -->
-    <script src="../assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
-    <script src="../assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
+    <script src="assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script>
+    <script src="assets/js/lib/jquery-jvectormap-world-mill-en.js"></script>
     <!-- Popup js -->
-    <script src="../assets/js/lib/magnifc-popup.min.js"></script>
+    <script src="assets/js/lib/magnifc-popup.min.js"></script>
     <!-- Slick Slider js -->
-    <script src="../assets/js/lib/slick.min.js"></script>
+    <script src="assets/js/lib/slick.min.js"></script>
     <!-- prism js -->
-    <script src="../assets/js/lib/prism.js"></script>
+    <script src="assets/js/lib/prism.js"></script>
     <!-- file upload js -->
-    <script src="../assets/js/lib/file-upload.js"></script>
+    <script src="assets/js/lib/file-upload.js"></script>
     <!-- audioplayer -->
-    <script src="../assets/js/lib/audioplayer.js"></script>
+    <script src="assets/js/lib/audioplayer.js"></script>
 
     <!-- main js -->
-    <script src="../assets/js/app.js"></script>
+    <script src="assets/js/app.js"></script>
 
     <script>
     // ================== Password Show Hide Js Start ==========
